@@ -6,7 +6,7 @@ function aktuel_sms_config() {
 	$configarray = array(
 		"name" => "Aktüel SMS",
 		"description" => "Müşterilerinize SMS ile bilgilendirme gönderebilirsiniz.",
-		"version" => "1.2.2",
+		"version" => "1.2.3",
 		"author" => "BurtiNET & Aktüel",
 		"language" => "turkish",
 	);
