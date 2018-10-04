@@ -1,9 +1,11 @@
 <?php
 
 class netgsm extends AktuelSms {
+	private $apiUrl = '';
     function __construct($message,$gsmnumber){
         $this->message = $this->utilmessage($message);
         $this->gsmnumber = $this->utilgsmnumber($gsmnumber);
+	$this->apiUrl = 'https://api.netgsm.com.tr/';
     }
 
     function send(){
@@ -14,9 +16,9 @@ class netgsm extends AktuelSms {
         }
         $params = $this->getParams();
 
-        $url = "http://api.netgsm.com.tr/bulkhttppost.asp?usercode=$params->user&password=$params->pass&gsmno=$this->gsmnumber&message=".urlencode($this->message)."&msgheader=".urlencode($params->senderid);
+        $url = "bulkhttppost.asp?usercode=$params->user&password=$params->pass&gsmno=$this->gsmnumber&message=".urlencode($this->message)."&msgheader=".urlencode($params->senderid);
         $log[] = "Request url: ".$url;
-        $result = curlCall($url,[]);
+        $result = $this->createRequest($url);
 
         $return = $result;
         $log[] = "Sunucudan dönen cevap: ".$result;
@@ -77,7 +79,8 @@ class netgsm extends AktuelSms {
         $params = $this->getParams();
 
         if($params->user && $params->pass && $msgid){
-            $url = "http://api.netgsm.com.tr/httpbulkrapor.asp?usercode=$params->user&password=$params->pass&bulkid=$msgid&type=0&status=";
+            $url = 
+"https://api.netgsm.com.tr/httpbulkrapor.asp?usercode=$params->user&password=$params->pass&bulkid=$msgid&type=0&status=";
             //status değiştiriliyor
             $url1 = $url."1";
             $result = curlCall($url1,[]);
@@ -104,6 +107,10 @@ class netgsm extends AktuelSms {
 
         return $number;
     }
+
+	function createRequest($addonUrl,$params=[]){
+		return curlCall($this->apiUrl.$addonUrl,$params);
+	}
 
     //You can spesifically convert your message
     function utilmessage($message){
