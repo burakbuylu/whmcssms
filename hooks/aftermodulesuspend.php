@@ -44,7 +44,7 @@ if(!function_exists('AfterModuleSuspend')){
     LIMIT 1");
 
         if($result){
-            $UserInformation = mysql_fetch_assoc($result);
+            $UserInformation = $result;
 
             $template['variables'] = str_replace(" ","",$template['variables']);
             $replacefrom = explode(",",$template['variables']);
