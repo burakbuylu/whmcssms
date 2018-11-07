@@ -2,18 +2,18 @@
 if (!defined("WHMCS"))
 	die("This file cannot be accessed directly");
 
-function aktuel_sms_config() {
+function whmcssms_config() {
 	$configarray = array(
-		"name" => "Aktüel SMS",
+		"name" => "WHMCS SMS",
 		"description" => "Müşterilerinize SMS ile bilgilendirme gönderebilirsiniz.",
-		"version" => "1.2.3",
+		"version" => "1.2.4",
 		"author" => "BurtiNET & Aktüel",
 		"language" => "turkish",
 	);
 	return $configarray;
 }
 
-function aktuel_sms_activate() {
+function whmcssms_activate() {
 
 	$query = "CREATE TABLE IF NOT EXISTS `mod_aktuelsms_messages` (`id` int(11) NOT NULL AUTO_INCREMENT,`sender` varchar(40) NOT NULL,`to` varchar(15) DEFAULT NULL,`text` text,`msgid` varchar(50) DEFAULT NULL,`status` varchar(10) DEFAULT NULL,`errors` text,`logs` text,`user` int(11) DEFAULT NULL,`datetime` datetime NOT NULL,PRIMARY KEY (`id`)) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;";
 	full_query($query);
@@ -35,7 +35,7 @@ function aktuel_sms_activate() {
 	return array('status'=>'success','description'=>'Aktüel Sms succesfully activated :)');
 }
 use WHMCS\Database\Capsule;
-function aktuel_sms_deactivate() {
+function whmcssms_deactivate() {
 
 	$query = "DROP TABLE `mod_aktuelsms_templates`";
 	full_query($query);
@@ -47,7 +47,7 @@ function aktuel_sms_deactivate() {
 	return array('status'=>'success','description'=>'Aktüel Sms succesfully deactivated :(');
 }
 
-function aktuel_sms_output($vars){
+function whmcssms_output($vars){
 	$modulelink = $vars['modulelink'];
 	$version = $vars['version'];
 	$LANG = $vars['_lang'];
@@ -59,27 +59,27 @@ function aktuel_sms_output($vars){
 	
 	$tabItems = [];
 	$tabItems[] = [
-		'link' => 'addonmodules.php?module=aktuel_sms&tab=settings',
+		'link' => 'addonmodules.php?module=whmcssms&tab=settings',
 		'name' => $LANG['settings'],
 		'class' => ($tab == "settings"||empty($tab))?"active":null
 	];
 	$tabItems[] = [
-		'link' => 'addonmodules.php?module=aktuel_sms&tab=templates&type=client',
+		'link' => 'addonmodules.php?module=whmcssms&tab=templates&type=client',
 		'name' => $LANG['clientsmstemplates'],
 		'class' => ((@$_GET['type'] == "client")?"active":null)
 	];
 	$tabItems[] = [
-		'link' => 'addonmodules.php?module=aktuel_sms&tab=templates&type=admin',
+		'link' => 'addonmodules.php?module=whmcssms&tab=templates&type=admin',
 		'name' => $LANG['adminsmstemplates'],
 		'class' => ((@$_GET['type'] == "admin")?"active":null)
 	];
 	$tabItems[] = [
-		'link' => 'addonmodules.php?module=aktuel_sms&tab=sendbulk',
+		'link' => 'addonmodules.php?module=whmcssms&tab=sendbulk',
 		'name' => $LANG['sendsms'],
 		'class' => (($tab == "sendbulk")?"active":null)
 	];
 	$tabItems[] = [
-		'link' => 'addonmodules.php?module=aktuel_sms&tab=messages',
+		'link' => 'addonmodules.php?module=whmcssms&tab=messages',
 		'name' => $LANG['messages'],
 		'class' => (($tab == "messages")?"active":null)
 	];
@@ -223,31 +223,33 @@ function aktuel_sms_output($vars){
 	}
 	elseif ($tab == "templates")
 	{
-		if ($_POST['submit']) {
+		if (isset($_POST['submit'])) {
 			$result = Capsule::table('mod_aktuelsms_templates')
 			->where("type","like",$_GET['type'])
 			->get();
 			foreach ($result AS $data) {
-				if ($_POST[$data->id . '_active'] == "on") {
+
+			    $id = $data->id;
+				if ($_POST[$id . '_active'] == "on") {
 					$tmp_active = 1;
 				} else {
 					$tmp_active = 0;
 				}
 				$update = array(
-					"template" => $_POST[$data->id . '_template'],
+					"template" => $_POST[$id . '_template'],
 					"active" => $tmp_active
 				);
 
-				if(isset($_POST[$data->id . '_extra'])){
-					$update['extra']= trim($_POST[$data->id . '_extra']);
+				if(isset($_POST[$id . '_extra'])){
+					$update['extra']= trim($_POST[$id . '_extra']);
 				}
-				if(isset($_POST[$data->id . '_admingsm'])){
-					$update['admingsm']= $_POST[$data->id . '_admingsm'];
+				if(isset($_POST[$id . '_admingsm'])){
+					$update['admingsm']= $_POST[$id . '_admingsm'];
 					$update['admingsm'] = str_replace(" ","",$update['admingsm']);
 				}
 				Capsule::table('mod_aktuelsms_templates')
-				->where('id', $data->id)
-				->update($update);
+                    ->where('id', $id)
+                    ->update($update);
 			}
 		}
 
@@ -415,7 +417,7 @@ if($page > $sayfasayisi){
 			<td>'.$data->text.'</td>
 			<td>'.$data->datetime.'</td>
 			<td>'.$LANG[$status].'</td>
-			<td><a href="addonmodules.php?module=aktuel_sms&tab=messages&deletesms='.$data->id.'" title="'.$LANG->delete.'"><i class="fa fa-minus-circle"></i></a></td></tr>';
+			<td><a href="addonmodules.php?module=whmcssms&tab=messages&deletesms='.$data->id.'" title="'.$LANG->delete.'"><i class="fa fa-minus-circle"></i></a></td></tr>';
 		}
 		/* Getting messages order by date desc */
 
@@ -425,7 +427,7 @@ if($page > $sayfasayisi){
 		';
 
 if($sayfasayisi>0){
-	$pageUrl='addonmodules.php?module=aktuel_sms&amp;tab=messages&amp;page=';
+	$pageUrl='addonmodules.php?module=whmcssms&amp;tab=messages&amp;page=';
 	echo '<ul class="pagination pagination-search pull-right">';
 		$undoUrl = '#';
 		$undoClass = 'disabled';
